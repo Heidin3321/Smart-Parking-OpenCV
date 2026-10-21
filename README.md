@@ -136,3 +136,87 @@ git push origin main
 ```
 
 Lakukan `git status` sebelum dan setelah stage; jangan menimpa file teman yang sudah memiliki perubahan tanpa pengecekan.
+
+
+## Dataset Setup & Prototype Testing
+
+### Dataset Information
+
+The current Smart Parking prototype uses a synthetic parking dataset for initial development and integration testing.
+
+- Dataset type: Synthetic parking lot images and video
+- Training samples: 192 images (96 empty, 96 occupied)
+- Baseline testing samples: 48 images
+- Parking slots: 12 predefined ROIs
+- Computer Vision method: OpenCV K-Nearest Neighbors (KNN), k=3
+- Current status: Integrated prototype tested on synthetic data
+
+**Important:** The synthetic dataset is distributed separately and is not included in this GitHub repository. It must not be considered a substitute for real-world parking footage.
+
+### Installation
+
+**1. Clone the repository**
+
+`git clone https://github.com/Heidin3321/Smart-Parking-OpenCV.git`
+
+`cd Smart-Parking-OpenCV`
+
+**2. Create and activate the virtual environment (Windows PowerShell)**
+
+`python -m venv .venv`
+
+`.\.venv\Scripts\Activate.ps1`
+
+**3. Install required libraries**
+
+`python -m pip install -r requirements.txt`
+
+The current development environment uses Python 3.13 and OpenCV 4.12.
+
+### Dataset Preparation
+
+Obtain `SmartParking_OpenCV_TestDataset.zip` from the project team and extract it into the repository's root directory.
+
+Expected dataset folder:
+
+`SmartParking_TestDataset/dataset/`
+
+The extracted dataset must also include its configuration files and training image patches.
+
+### Running the Prototype
+
+**Test the first three frames:**
+
+`python main.py --mode detect --no-window --max-frames 3`
+
+**Process the complete synthetic video:**
+
+`python main.py --mode detect --no-window --save-video`
+
+**Run integration tests:**
+
+`python -m unittest discover -s tests -v`
+
+### Generated Outputs
+
+The integrated application produces:
+
+- `results/integration/first_frame.jpg` — annotated sample frame
+- `results/integration/annotated_video.mp4` — processed video
+- `results/integration/predictions.csv` — parking occupancy predictions
+
+### Preliminary Results
+
+Initial integration testing successfully processed 48 frames with 12 parking ROIs per frame. All four automated integration tests passed.
+
+The earlier synthetic evaluation showed agreement on 576 out of 576 synthetic slot labels. These results are limited to simulated data from the same artificial environment and do not establish real-world detection accuracy.
+
+### Limitations & Future Development
+
+- Evaluate the detector using real parking footage.
+- Adjust ROI coordinates for the selected camera.
+- Calibrate or replace the synthetic-data classifier as needed.
+- Evaluate predictions using manually verified ground truth.
+- Improve robustness against shadows, lighting changes, and occlusions.
+
+Real-world evaluation and final integration are planned for the next development stage.
