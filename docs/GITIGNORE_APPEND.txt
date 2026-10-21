@@ -1,0 +1,8 @@
+# Append to your existing .gitignore BEFORE committing
+SmartParking_TestDataset/
+dataset/*.mp4
+dataset/*.avi
+results/
+integration_staging/
+__pycache__/
+*.pyc

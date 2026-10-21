@@ -1,0 +1,26 @@
+# Run from C:\Smart-Parking-OpenCV with existing .venv active.
+# Replace ZIP_PATH below with the real location of downloaded ZIP.
+
+# BACKUP FIRST:
+Copy-Item .\main.py .\main_input_test_backup.py -Force
+Copy-Item .\README.md .\README_before_integration.md -Force
+
+# STAGING (avoid unintentional overwrite of existing files):
+Expand-Archive -LiteralPath "C:\Users\lenovo\Downloads\SmartParking_Week8_Integration_Pack.zip" -DestinationPath .\integration_staging -Force
+
+# Install four Python modules. REVIEW files if collaborators already edited them.
+Copy-Item .\integration_staging\main.py .\main.py -Force
+Copy-Item .\integration_staging\preprocessing.py .\preprocessing.py -Force
+Copy-Item .\integration_staging\detector.py .\detector.py -Force
+Copy-Item .\integration_staging\visualization.py .\visualization.py -Force
+Copy-Item .\integration_staging\README_INTEGRATION.md .\README_INTEGRATION.md -Force
+# Copy to the required README.md for source-code submission:
+Copy-Item .\integration_staging\README_INTEGRATION.md .\README.md -Force
+Copy-Item .\integration_staging\docs .\docs -Recurse -Force
+Copy-Item .\integration_staging\tests .\tests -Recurse -Force
+
+# Review docs/GITIGNORE_APPEND.txt and append to the actual .gitignore manually.
+# Then test with:
+python main.py --mode detect --no-window --max-frames 3
+python -m unittest discover -s tests -v
+python main.py --mode detect --no-window --save-video
