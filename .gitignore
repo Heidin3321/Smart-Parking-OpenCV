@@ -2,3 +2,20 @@
 __pycache__/
 *.pyc
 .vscode/
+# Generated datasets and local experiments
+SmartParking_TestDataset/
+integration_staging/
+results/
+
+# Temporary backups
+main_input_test_backup.py
+README_before_integration.md
+
+# Previous experimental demo
+smart_parking_demo.py
+README_DEMO.md
+
+# Large local video files
+dataset/*.mp4
+dataset/*.avi
+dataset/*.mov
