@@ -1,0 +1,107 @@
+{
+  "frame_width": 380,
+  "frame_height": 452,
+  "source_video": "parking_v3_stabilized.mp4",
+  "roi_status": "RECOVERED FROM TERMINAL LOG - manually drawn positions, pending visual review",
+  "notes": "14 manually drawn ROI coordinates recovered from the user's terminal transcript after --reset replaced the REVIEWED JSON with an empty list. Validate at 0s, 10s, 20s before interpreting classifications.",
+  "slots": [
+    {
+      "id": "P001",
+      "x": 54,
+      "y": 1,
+      "w": 150,
+      "h": 57
+    },
+    {
+      "id": "P002",
+      "x": 208,
+      "y": 2,
+      "w": 127,
+      "h": 53
+    },
+    {
+      "id": "P003",
+      "x": 209,
+      "y": 58,
+      "w": 124,
+      "h": 52
+    },
+    {
+      "id": "P004",
+      "x": 210,
+      "y": 119,
+      "w": 126,
+      "h": 51
+    },
+    {
+      "id": "P005",
+      "x": 70,
+      "y": 119,
+      "w": 132,
+      "h": 51
+    },
+    {
+      "id": "P006",
+      "x": 69,
+      "y": 62,
+      "w": 133,
+      "h": 49
+    },
+    {
+      "id": "P007",
+      "x": 73,
+      "y": 180,
+      "w": 129,
+      "h": 51
+    },
+    {
+      "id": "P008",
+      "x": 210,
+      "y": 178,
+      "w": 126,
+      "h": 50
+    },
+    {
+      "id": "P009",
+      "x": 210,
+      "y": 238,
+      "w": 129,
+      "h": 50
+    },
+    {
+      "id": "P010",
+      "x": 210,
+      "y": 298,
+      "w": 129,
+      "h": 51
+    },
+    {
+      "id": "P011",
+      "x": 72,
+      "y": 239,
+      "w": 132,
+      "h": 51
+    },
+    {
+      "id": "P012",
+      "x": 71,
+      "y": 301,
+      "w": 134,
+      "h": 48
+    },
+    {
+      "id": "P013",
+      "x": 73,
+      "y": 360,
+      "w": 133,
+      "h": 53
+    },
+    {
+      "id": "P014",
+      "x": 213,
+      "y": 358,
+      "w": 124,
+      "h": 56
+    }
+  ]
+}

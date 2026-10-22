@@ -33,3 +33,15 @@ dataset/*.mov
 /SHA256.txt
 /START_HERE.txt
 /previews/
+
+# Local datasets and generated outputs
+/dataset/
+/results/
+/previews/
+
+# Temporary package and staging files
+/real_upgrade_staging/
+/integration_staging/
+/.gitignore_APPEND.txt
+/.gitignore_PARKINGV2_APPEND.txt
+/README_START_HERE.txt

@@ -1,0 +1,8 @@
+{
+  "frame_width": 380,
+  "frame_height": 452,
+  "source_video": "parking_v3_stabilized.mp4",
+  "roi_status": "EMPTY TEMPLATE - manually draw ROIs, then validate on multiple frames",
+  "notes": "Blank ROI configuration for Parking V3 stabilized footage 380x452. User must draw each real parking bay manually; no slot class labels yet.",
+  "slots": []
+}

@@ -1,0 +1,107 @@
+{
+  "frame_width": 380,
+  "frame_height": 452,
+  "source_video": "parking_v3_stabilized.mp4",
+  "roi_status": "DRAFT - verify visually; not ground truth",
+  "notes": "14 visible parking bays in 2 columns and 7 rows; may have partially occluded boundaries. Calibration frame time=0s. Verify at 0, 10, 20s.",
+  "slots": [
+    {
+      "id": "L01",
+      "x": 58,
+      "y": 4,
+      "w": 151,
+      "h": 50
+    },
+    {
+      "id": "R01",
+      "x": 213,
+      "y": 2,
+      "w": 145,
+      "h": 50
+    },
+    {
+      "id": "L02",
+      "x": 64,
+      "y": 60,
+      "w": 143,
+      "h": 50
+    },
+    {
+      "id": "R02",
+      "x": 208,
+      "y": 54,
+      "w": 150,
+      "h": 55
+    },
+    {
+      "id": "L03",
+      "x": 55,
+      "y": 112,
+      "w": 153,
+      "h": 59
+    },
+    {
+      "id": "R03",
+      "x": 210,
+      "y": 112,
+      "w": 168,
+      "h": 60
+    },
+    {
+      "id": "L04",
+      "x": 49,
+      "y": 177,
+      "w": 157,
+      "h": 53
+    },
+    {
+      "id": "R04",
+      "x": 212,
+      "y": 174,
+      "w": 157,
+      "h": 58
+    },
+    {
+      "id": "L05",
+      "x": 69,
+      "y": 233,
+      "w": 136,
+      "h": 58
+    },
+    {
+      "id": "R05",
+      "x": 211,
+      "y": 234,
+      "w": 156,
+      "h": 57
+    },
+    {
+      "id": "L06",
+      "x": 55,
+      "y": 295,
+      "w": 151,
+      "h": 58
+    },
+    {
+      "id": "R06",
+      "x": 208,
+      "y": 291,
+      "w": 156,
+      "h": 60
+    },
+    {
+      "id": "L07",
+      "x": 54,
+      "y": 359,
+      "w": 152,
+      "h": 58
+    },
+    {
+      "id": "R07",
+      "x": 210,
+      "y": 355,
+      "w": 159,
+      "h": 63
+    }
+  ]
+}
