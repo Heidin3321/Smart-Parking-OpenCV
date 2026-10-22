@@ -28,3 +28,8 @@ dataset/*.mov
 # Real upgrade backups
 /main_before_real_upgrade.py
 /detector_before_real_upgrade.py
+
+# Local package files
+/SHA256.txt
+/START_HERE.txt
+/previews/
