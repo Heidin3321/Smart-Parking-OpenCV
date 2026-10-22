@@ -19,3 +19,12 @@ README_DEMO.md
 dataset/*.mp4
 dataset/*.avi
 dataset/*.mov
+
+# Real CNRPark dataset
+/dataset/raw/
+/dataset/real_cnrpark/
+/real_upgrade_staging/
+
+# Real upgrade backups
+/main_before_real_upgrade.py
+/detector_before_real_upgrade.py

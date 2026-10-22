@@ -61,7 +61,9 @@ def read_slots(path: Path) -> dict:
 def build_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Smart Parking Week 8 integrated prototype")
     parser.add_argument("--mode", choices=("input", "detect"), default="detect",
-                        help="input: video/webcam check; detect: synthetic KNN occupancy (default)")
+                        help="input: video/webcam check; detect: KNN occupancy (default)")
+    parser.add_argument("--training-domain", choices=("synthetic", "real", "unknown"), default="synthetic",
+                        help="Honest input/training provenance for video annotation")
     parser.add_argument("--source", default=str(DEFAULT_SOURCE),
                         help="Video path or integer camera index such as 0")
     parser.add_argument("--config", default=str(DEFAULT_CONFIG), help="ROI JSON matching video")
@@ -87,7 +89,10 @@ def run(args: argparse.Namespace) -> dict:
     if args.mode == "detect":
         config = read_slots(resolve_file(args.config))
         detector = ParkingDetector(resolve_file(args.train_dir))
-        print("WARNING: Detector trained on SYNTHETIC data; not validated on real CCTV.")
+        if args.training_domain == "synthetic":
+            print("WARNING: SYNTHETIC training; not validated on real CCTV.")
+        else:
+            print(f"TRAINING DOMAIN: {args.training_domain}. Predictions on video require separate ground-truth evaluation.")
 
     cap = cv2.VideoCapture(source)
     if not cap.isOpened():
@@ -132,7 +137,9 @@ def run(args: argparse.Namespace) -> dict:
                     predictions = detector.predict(prepared, config["slots"])
                     for item in predictions:
                         rows.writerow((frame_id, item["id"], item["status"]))
-                    rendered = draw_detection(frame, predictions, frame_id)
+                    label = ("SYNTHETIC DEMO ONLY" if args.training_domain == "synthetic"
+                             else f"TRAIN={args.training_domain.upper()} | VIDEO NOT YET VALIDATED")
+                    rendered = draw_detection(frame, predictions, frame_id, dataset_label=label)
                 else:
                     rendered = draw_input_test(frame)
 

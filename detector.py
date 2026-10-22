@@ -1,7 +1,7 @@
-"""Temporary synthetic OpenCV KNN detector. Fachriza owns production replacement.
+"""Baseline OpenCV KNN detector. Fachriza owns real-world production replacement.
 
-DO NOT report performance here as real parking-lot accuracy. This detector
-uses synthetic images supplied in the companion sample ZIP only.
+Training images can be synthetic or real, passed as train_dir/empty and
+train_dir/occupied. Do not report real-video accuracy without labels.
 """
 
 from pathlib import Path
@@ -41,7 +41,7 @@ class ParkingDetector:
             source = self.train_dir / name
             paths = sorted(source.glob("*.jpg")) + sorted(source.glob("*.png"))
             if not paths:
-                raise FileNotFoundError(f"No synthetic training images found: {source}")
+                raise FileNotFoundError(f"No training images found: {source}")
             for path in paths:
                 img = cv2.imread(str(path))
                 if img is None:
@@ -56,7 +56,7 @@ class ParkingDetector:
         target = np.asarray(labels, dtype=np.float32)
         if not self.model.train(data, cv2.ml.ROW_SAMPLE, target):
             raise RuntimeError("Failed to train OpenCV KNN")
-        print(f"Loaded {len(labels)} SYNTHETIC patches; trained KNN (k={k}).")
+        print(f"Loaded {len(labels)} labeled training patches from {self.train_dir}; trained KNN (k={k}).")
 
     def predict(self, frame: np.ndarray, slots: list[dict]) -> list[dict]:
         height, width = frame.shape[:2]
