@@ -1,0 +1,62 @@
+{
+  "frame_width": 960,
+  "frame_height": 541,
+  "source_video": "1918x1080",
+  "fingerprint": "3bc2c449ffdc",
+  "sampling_plan": {
+    "calibration": [
+      54,
+      99
+    ],
+    "test": [
+      300,
+      358
+    ]
+  },
+  "annotation": "manual: all ROI proposals require user acceptance before use",
+  "roi_creation_mode": "manual",
+  "slots": [
+    {
+      "id": "N001",
+      "x": 334,
+      "y": 31,
+      "w": 186,
+      "h": 79
+    },
+    {
+      "id": "N002",
+      "x": 362,
+      "y": 114,
+      "w": 159,
+      "h": 69
+    },
+    {
+      "id": "N003",
+      "x": 365,
+      "y": 191,
+      "w": 158,
+      "h": 71
+    },
+    {
+      "id": "N004",
+      "x": 360,
+      "y": 265,
+      "w": 160,
+      "h": 81
+    },
+    {
+      "id": "N005",
+      "x": 363,
+      "y": 347,
+      "w": 158,
+      "h": 76
+    },
+    {
+      "id": "N006",
+      "x": 335,
+      "y": 421,
+      "w": 198,
+      "h": 77
+    }
+  ]
+}

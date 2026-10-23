@@ -1,0 +1,31 @@
+{
+  "fingerprint": "3bc2c449ffdc",
+  "roi_signature": "b303d4a59b4616b09a2dcef1bd47690105393fdad730d6bc5fca84a6851249c7",
+  "protocol": "Human calibration AND holdout-test truth recorded before displaying model predictions.",
+  "labels": {
+    "calibration:54:N001": "occupied",
+    "calibration:54:N002": "occupied",
+    "calibration:54:N003": "occupied",
+    "calibration:54:N004": "occupied",
+    "calibration:54:N005": "empty",
+    "calibration:54:N006": "occupied",
+    "calibration:99:N001": "occupied",
+    "calibration:99:N002": "occupied",
+    "calibration:99:N003": "occupied",
+    "calibration:99:N004": "occupied",
+    "calibration:99:N005": "empty",
+    "calibration:99:N006": "occupied",
+    "test:300:N001": "occupied",
+    "test:300:N002": "occupied",
+    "test:300:N003": "occupied",
+    "test:300:N004": "empty",
+    "test:300:N005": "empty",
+    "test:300:N006": "occupied",
+    "test:358:N001": "occupied",
+    "test:358:N002": "occupied",
+    "test:358:N003": "occupied",
+    "test:358:N004": "empty",
+    "test:358:N005": "empty",
+    "test:358:N006": "occupied"
+  }
+}
