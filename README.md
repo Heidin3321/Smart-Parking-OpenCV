@@ -1,222 +1,150 @@
-# Smart Parking OpenCV — Week 8 Integration Starter
+# Smart Parking Occupancy Detection System — Final Project
 
-**PIC Integrasi:** Ichsan  
-**Proyek:** Smart Parking Occupancy Detection System  
-**Status:** Prototipe integrasi pada **data sintetis**. Bukan sistem parkir siap produksi dan **belum teruji pada CCTV nyata**.
+**Mata kuliah:** Teknologi Berkembang (A), Institut Teknologi Sepuluh Nopember  
+**Kelompok:** 02  
+**Repository:** https://github.com/Heidin3321/Smart-Parking-OpenCV
 
-## Fungsionalitas saat ini
+## 1. Deskripsi proyek
 
-- Membaca video atau webcam (`--mode input`), tanpa memaksa webcam memakai ROI contoh.
-- Memuat koordinat slot dari JSON dengan pemeriksaan ukuran frame.
-- Menjalankan klasifikasi **KNN OpenCV** berdasarkan foto patch sintetis berlabel `empty` / `occupied` (`--mode detect`).
-- Menampilkan kotak hijau/merah, ID slot, dan total status slot per frame.
-- Menyimpan screenshot, video beranotasi (opsional), dan prediksi per-frame ke CSV.
-- Memisahkan `main.py`, `preprocessing.py`, `detector.py`, `visualization.py` sehingga modul tim bisa diganti tanpa menulis ulang entry point.
+Smart Parking adalah prototipe pengolahan video parkiran menggunakan Python dan OpenCV untuk mengidentifikasi status setiap petak sebagai **EMPTY**, **OCCUPIED**, atau **UNCERTAIN**. Pengguna memilih video, menetapkan *Region of Interest* (ROI) untuk petak yang akan dianalisis, dan memberi label manual pada contoh data. Program mengekstraksi fitur dari crop ROI, melatih model scene-specific K-Nearest Neighbors (KNN), mengevaluasi prediksi pada sampel akhir video yang dipisahkan secara temporal, kemudian menghasilkan video dengan kotak warna dan ringkasan jumlah slot.
 
-## Kebutuhan
+Sistem juga memakai estimasi gerak kamera berbasis ORB/RANSAC, dengan fallback *phase correlation*, untuk membantu menyesuaikan koordinat ROI antarfame. Ini adalah **prototipe berbasis video**, bukan sistem CCTV produksi atau model yang sudah teruji pada seluruh lokasi parkir.
 
-- Python 3.13.x pada Windows (yang sudah dipakai kelompok).
-- `opencv-python==4.12.0.88`; NumPy versi kompatibel (sebelumnya dipakai `numpy==2.2.6`).
-- **Dataset sintetis pendamping yang sudah diekstrak:**
+## 2. Perangkat lunak dan dependensi
+
+- Windows 10/11 dengan PowerShell.
+- **Python 3.13** (disarankan agar sesuai dependensi yang dikunci).
+- Paket dalam `requirements.txt`: `numpy==2.2.6` dan `opencv-python==4.12.0.88`.
+- Video input dalam format yang didukung OpenCV (contoh: MP4).
+- Jendela GUI OpenCV dan pemilih berkas Windows harus tersedia untuk workflow interaktif.
+
+Gunakan virtual environment **di dalam folder proyek** agar paket tidak mengganggu instalasi Python/OpenCV global:
+
+```powershell
+cd C:\Smart-Parking-OpenCV-FINAL
+py -3.13 -m venv .venv
+.\.venv\Scripts\python.exe -m pip install --upgrade pip
+.\.venv\Scripts\python.exe -m pip install --only-binary=:all: -r requirements.txt
+.\.venv\Scripts\python.exe -c "import cv2, numpy; print('OpenCV:', cv2.__version__, '| NumPy:', numpy.__version__)"
+```
+
+Ganti path direktori pada baris pertama apabila proyek berada di folder lain. Semua perintah berikut dijalankan **dari direktori root proyek** dan memakai `\.venv\Scripts\python.exe`, bukan Python global.
+
+## 3. Struktur penting proyek
 
 ```text
-C:\Smart-Parking-OpenCV\
-  main.py
-  preprocessing.py
-  detector.py
-  visualization.py
-  README.md                           # copy from README_INTEGRATION.md
-  README_INTEGRATION.md
-  requirements.txt                     # file existing user
-  SmartParking_TestDataset\
-    config\parking_slots.json
-    dataset\parking_sample.mp4
-    dataset\patches\train\empty\*.jpg
-    dataset\patches\train\occupied\*.jpg
-  docs\
-  tests\
-  results\
+Smart-Parking-OpenCV/
+  main.py                  # Entry point prototipe integrasi awal
+  detector.py              # Ekstraksi fitur dan classifier KNN
+  preprocessing.py         # Validasi/persiapan frame
+  visualization.py         # Visualisasi
+  scripts/
+    parking_roi_wizard.py  # Workflow utama video baru: ROI -> label -> train/test -> MP4
+    video_label_flow.py    # Human labeling, calibration, holdout, report
+    run_motion_aware_parking.py  # Estimasi pergerakan kamera dan rendering
+    test_new_parking_video.py    # Modul pendukung video/ROI/evaluasi
+  config/new_parking_video/       # ROI tersimpan berbentuk JSON
+  evaluation/new_parking_video/   # Label manusia untuk calibration dan test
+  tests/                          # Automated unit/integration tests
+  requirements.txt
+  README.md
 ```
 
-Aktifkan `.venv` pada terminal PowerShell yang ada di `C:\Smart-Parking-OpenCV`:
+Folder `.venv/`, `dataset/`, dan `results/` merupakan lingkungan/data/hasil lokal; tidak perlu dimasukkan dalam arsip **source code**. Materi sample input dan/atau petunjuk memperolehnya disediakan terpisah dalam paket pengumpulan.
+
+## 4. Menyiapkan input
+
+Untuk eksperimen utama, kelompok menggunakan `Vidtest1.mp4`, yaitu video hasil pemrosesan dari footage aerial parkiran yang dicantumkan pada bagian **Sumber dataset**. Letakkan berkas `Vidtest1.mp4` di `demo_inputs/`, atau pilih lokasinya lewat dialog Windows.
+
+**Catatan reproduksibilitas:** Konfigurasi `Vidtest1_a34ca0eb1f00_rois.json` dan label yang cocok disimpan menggunakan identitas yang mempertimbangkan **nama file dan fingerprint isi video**. Gunakan file `Vidtest1.mp4` yang sama tanpa mengganti nama atau mengubah isinya apabila ingin menggunakan ROI dan label hasil eksperimen utama. File footage baru dapat memakai ROI serta label baru.
+
+## 5. Cara menjalankan aplikasi
+
+### A. Demo dari awal: pilih video, gambar ROI dan label secara manual
 
 ```powershell
-.\.venv\Scripts\Activate.ps1
-python -c "import cv2; print(cv2.__version__, hasattr(cv2, 'ml'))"
+.\.venv\Scripts\python.exe scripts\parking_roi_wizard.py --pick --roi-mode manual --detector scene_knn --no-open
 ```
 
-Jika `opencv-python` ternyata versi 5.0, gunakan `python -m pip install "opencv-python==4.12.0.88"` dahulu.
+1. Dialog Windows muncul; pilih **video input mentah** (bukan video output anotasi).
+2. Pada jendela ROI, seret mouse kiri untuk menandai tiap petak parkir. Tekan **Enter/S** untuk menyimpan, **U** untuk membatalkan aksi terakhir, atau **C** untuk menghapus semua ROI.
+3. Pada jendela pelabelan, tekan **O** = OCCUPIED, **E** = EMPTY, atau **U** = UNKNOWN jika kondisi tidak jelas/tidak bisa dinilai; **B** untuk kembali; **Q** untuk menyimpan progres dan keluar.
+4. Pastikan data **kalibrasi** memiliki contoh EMPTY dan OCCUPIED yang benar agar KNN khusus scene dapat dibentuk. Jangan mengubah label yang sebenarnya hanya untuk menyeimbangkan kelas.
+5. Setelah pelabelan lengkap, program menjalankan training, evaluasi, dan rendering hasil secara otomatis.
 
-## Jalankan prototipe terintegrasi
+Jika memakai **file yang sebelumnya sudah pernah diberi label**, identitas yang sama dapat memuat ROI/label tersimpan. Untuk mendemonstrasikan seluruh proses pelabelan dari awal tanpa mengganggu eksperimen Week 8, gunakan **salinan video dengan nama baru** dan lakukan pelabelan ulang.
 
-**Deteksi otomatis (default, pada data simulasi):**
+### B. Reproduksi eksperimen utama Vidtest1 dari ROI/label tersimpan
 
 ```powershell
-python main.py --mode detect
+.\.venv\Scripts\python.exe scripts\parking_roi_wizard.py --video ".\demo_inputs\Vidtest1.mp4" --roi-mode existing --detector scene_knn --no-open
 ```
 
-**Simpan anotasi video dan CSV tanpa GUI:**
+Perintah ini melatih ulang model berdasarkan sampel kalibrasi yang telah dilabel, menguji terhadap sampel holdout, lalu membuat video output. **Tidak perlu menggambar ROI atau memberi label ulang** bila berkas video dan JSON cocok.
+
+### C. Buka hasil eksperimen utama
 
 ```powershell
-python main.py --mode detect --no-window --save-video
+ii ".\results\new_parking_video\Vidtest1_a34ca0eb1f00\report.html"
+ii ".\results\new_parking_video\Vidtest1_a34ca0eb1f00\annotated_video_motion_roi.mp4"
 ```
 
-**Uji cepat hanya 3 frame:**
+Untuk run dengan nama video lain, lihat folder terbaru di `results/new_parking_video/`.
+
+## 6. Output yang dihasilkan
+
+Pada folder `results/new_parking_video/<identitas_video>/`, program dapat menyimpan:
+
+- `annotated_video_motion_roi.mp4`: video dengan kotak ROI dan label EMPTY/OCCUPIED/UNCERTAIN serta penghitung per frame;
+- `report.html`: ringkasan hasil pengujian yang dapat dibuka di browser;
+- `report.json`: metrik dan metadata terstruktur;
+- `holdout_predictions.csv`: detail hasil klasifikasi tiap sampel uji.
+
+Kotak **hijau** menunjukkan EMPTY, **merah** menunjukkan OCCUPIED, dan **kuning** menunjukkan UNCERTAIN. Jumlah status pada satu frame merupakan **prediksi saat itu**, bukan akurasi model.
+
+## 7. Evaluasi dan batas interpretasi
+
+Pada pengujian terdokumentasi dengan `Vidtest1.mp4`, kelompok menggunakan **14 ROI manual**. Sampel kalibrasi diambil dari frame 107 dan 198; sampel pengujian dari frame 599 dan 715. Total terdapat **28 sampel uji berlabel** (22 OCCUPIED, 6 EMPTY):
+
+| Pendekatan | Benar / diuji | Akurasi | UNCERTAIN |
+| --- | ---: | ---: | ---: |
+| `new_scene_knn` | 28/28 | 100,00% | 0 |
+| `new_scene_reference` | 26/28 | 92,86% | 2 |
+| `cnrpark_pretrained` | 12/28 | 42,86% | 0 |
+
+Angka ini berasal dari **temporal holdout pada satu video yang sama**, bukan pengujian video/lokasi yang independen. Frame yang berdekatan dapat memiliki kemiripan yang tinggi. Karena itu, **100% bukan jaminan kinerja di semua situasi**. Baseline `cnrpark_pretrained` hanya muncul apabila dataset pelatihan CNRPark tersedia di `dataset/real_cnrpark/train/{empty,occupied}`; dataset tersebut **tidak termasuk dalam clone GitHub standar**.
+
+Untuk menjalankan pengujian kode:
 
 ```powershell
-python main.py --mode detect --no-window --max-frames 3
+.\.venv\Scripts\python.exe -m unittest discover -s tests -t . -v
 ```
 
-**Uji webcam tanpa deteksi:**
+Perhatikan bahwa hasil unit test memeriksa fungsi kode dan alur, **bukan** pengganti pengukuran akurasi klasifikasi pada video independen.
 
-```powershell
-python main.py --mode input --source 0
-```
+## 8. Keterbatasan dan pengembangan lanjutan
 
-**Video baru + koordinat baru:**
+- ROI manual dan label manusia masih diperlukan; usulan ROI otomatis belum dianggap selalu akurat.
+- Hasil eksperimen utama berasal dari video dan kamera yang sama; performa pada scene lain belum terbukti.
+- Sistem sensitif pada perubahan cahaya, oklusi, perbedaan sudut kamera, dan kegagalan estimasi gerak.
+- Kualitas hasil dipengaruhi jumlah/keseimbangan sampel EMPTY dan OCCUPIED dalam data kalibrasi.
+- Sistem belum diintegrasikan ke dashboard real-time, sensor lapangan, atau pengelolaan parkir produksi.
 
-```powershell
-python main.py --mode detect --source dataset/parking_real.mp4 --config config/parking_slots.json
-```
+Pengembangan yang relevan meliputi evaluasi video independen, perluasan dataset, penyeimbangan kelas, otomatisasi ROI yang tervalidasi, dan peningkatan ketahanan tracking.
 
-**PERINGATAN:** Perintah video baru di atas baru sah setelah Rifqi menyediakan ROIs untuk video tersebut **dan** Fachriza mengadaptasi/melatih ulang detektor dengan data nyata. Jangan menafsirkan output classifier yang dilatih pada sintetis sebagai akurasi nyata.
+## 9. Sumber dataset dan referensi
 
-**Shortcut:** Tekan `S` untuk screenshot, `Q` untuk berhenti saat jendela aplikasi terbuka.
+- **Footage utama:** Shtohryn, *Aerial Footage of a Parking Lot*, Pexels, https://www.pexels.com/video/aerial-footage-of-a-parking-lot-5587732/ . Video `Vidtest1.mp4` merupakan video olahan/cuplikan yang digunakan kelompok. Hak atas footage sumber tetap mengikuti ketentuan pemilik/platform.
+- **Baseline pembanding (opsional):** CNRPark dataset, apabila disediakan secara terpisah oleh peneliti/pengguna.
+- **Pustaka utama:** Python, OpenCV, NumPy.
+- **Kode kolaboratif kelompok:** https://github.com/Heidin3321/Smart-Parking-OpenCV .
 
-**Output default:**
+## 10. Anggota kelompok
 
-```text
-results/integration/
-  first_frame.jpg
-  predictions.csv
-  annotated_video.mp4             # hanya jika --save-video
-  screenshot_frame_XXXX.jpg       # hanya jika pengguna menekan S
-```
+- Lenno Andhika Pramudya Arkadewa — 5026241057
+- Fachriza Rizky Susanto — 5026241092
+- Muhammad Rifqi Ahnaf Novanto — 5026241118
+- Ichsan Ramadhan — 5026241126
+- Muhammad Hanif Syahnandra — 5026241176
 
-Ini folder output integrasi baru, jadi **tidak menimpa** `results/detection_demo.mp4` dan `results/detection_predictions.csv` dari prototipe sebelumnya.
-
-## Pengujian otomatis
-
-```powershell
-python -m unittest discover -s tests -v
-```
-
-Tes unit berlaku tanpa dataset. Tes *pipeline* tiga frame akan dilewati jika `SmartParking_TestDataset` belum tersedia.
-
-## Kontrak anggota
-
-Baca [docs/TEAM_INTERFACE_CONTRACT.md](docs/TEAM_INTERFACE_CONTRACT.md). Format ROI harus memiliki `frame_width`, `frame_height`, dan `slots` (setiap slot `id`, `x`, `y`, `w`, `h`). Sistem **mengharuskan resolusi video sama dengan resolusi ROI**. `ParkingDetector.predict(frame_bgr, slots)` mengembalikan daftar hasil per slot dengan `status` berupa string `empty` atau `occupied`.
-
-## Apa yang sudah / belum
-
-| Aspek | Status |
-|---|---|
-| Webcam/video input | Sudah diuji oleh tim |
-| Prediksi pada simulasi | Sudah diuji oleh tim (dataset sintetis) |
-| Integrasi kode modular baru | Siap untuk diuji pada laptop tim |
-| Video parkir nyata & ROI | Menunggu Rifqi |
-| Adaptasi metode deteksi nyata | Menunggu Fachriza |
-| Pengukuran akurasi footage nyata | Menunggu pengujian Lenno |
-
-**Penting untuk ETS:** Jangan menyebut agreement `576/576` pada scene sintetis sebagai akurasi parkir nyata. Nilai baseline `48/48` pada patch sintetis juga bukan validasi independent dunia nyata. Cantumkan sumber asli data dan bukti pengujian yang benar-benar ada.
-
-## Sinkronisasi GitHub
-
-Repository kelompok: https://github.com/Heidin3321/Smart-Parking-OpenCV
-
-Sebelum `git add .`, tambahkan isi `docs/GITIGNORE_APPEND.txt` ke `.gitignore` agar video/data dan file hasil tidak ikut di-push secara tidak sengaja. Jika video/dataset perlu dibagikan, cantumkan cara mendapatkannya di README atau gunakan penyimpanan yang disepakati kelompok.
-
-Disarankan commit integrasi:
-
-```powershell
-git status
-git add main.py detector.py preprocessing.py visualization.py README.md README_INTEGRATION.md docs tests .gitignore
-git commit -m "Add modular Week 8 integration starter"
-git push origin main
-```
-
-Lakukan `git status` sebelum dan setelah stage; jangan menimpa file teman yang sudah memiliki perubahan tanpa pengecekan.
-
-
-## Dataset Setup & Prototype Testing
-
-### Dataset Information
-
-The current Smart Parking prototype uses a synthetic parking dataset for initial development and integration testing.
-
-- Dataset type: Synthetic parking lot images and video
-- Training samples: 192 images (96 empty, 96 occupied)
-- Baseline testing samples: 48 images
-- Parking slots: 12 predefined ROIs
-- Computer Vision method: OpenCV K-Nearest Neighbors (KNN), k=3
-- Current status: Integrated prototype tested on synthetic data
-
-**Important:** The synthetic dataset is distributed separately and is not included in this GitHub repository. It must not be considered a substitute for real-world parking footage.
-
-### Installation
-
-**1. Clone the repository**
-
-`git clone https://github.com/Heidin3321/Smart-Parking-OpenCV.git`
-
-`cd Smart-Parking-OpenCV`
-
-**2. Create and activate the virtual environment (Windows PowerShell)**
-
-`python -m venv .venv`
-
-`.\.venv\Scripts\Activate.ps1`
-
-**3. Install required libraries**
-
-`python -m pip install -r requirements.txt`
-
-The current development environment uses Python 3.13 and OpenCV 4.12.
-
-### Dataset Preparation
-
-Obtain `SmartParking_OpenCV_TestDataset.zip` from the project team and extract it into the repository's root directory.
-
-Expected dataset folder:
-
-`SmartParking_TestDataset/dataset/`
-
-The extracted dataset must also include its configuration files and training image patches.
-
-### Running the Prototype
-
-**Test the first three frames:**
-
-`python main.py --mode detect --no-window --max-frames 3`
-
-**Process the complete synthetic video:**
-
-`python main.py --mode detect --no-window --save-video`
-
-**Run integration tests:**
-
-`python -m unittest discover -s tests -v`
-
-### Generated Outputs
-
-The integrated application produces:
-
-- `results/integration/first_frame.jpg` — annotated sample frame
-- `results/integration/annotated_video.mp4` — processed video
-- `results/integration/predictions.csv` — parking occupancy predictions
-
-### Preliminary Results
-
-Initial integration testing successfully processed 48 frames with 12 parking ROIs per frame. All four automated integration tests passed.
-
-The earlier synthetic evaluation showed agreement on 576 out of 576 synthetic slot labels. These results are limited to simulated data from the same artificial environment and do not establish real-world detection accuracy.
-
-### Limitations & Future Development
-
-- Evaluate the detector using real parking footage.
-- Adjust ROI coordinates for the selected camera.
-- Calibrate or replace the synthetic-data classifier as needed.
-- Evaluate predictions using manually verified ground truth.
-- Improve robustness against shadows, lighting changes, and occlusions.
-
-Real-world evaluation and final integration are planned for the next development stage.
+Rincian kontribusi aktual masing-masing anggota tercantum dalam dokumen terpisah `Appendix/Team_Contributions.pdf` pada paket pengumpulan final.

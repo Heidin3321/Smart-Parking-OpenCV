@@ -45,3 +45,5 @@ dataset/*.mov
 /.gitignore_APPEND.txt
 /.gitignore_PARKINGV2_APPEND.txt
 /README_START_HERE.txt
+demo_inputs/
+evidence_ets/
